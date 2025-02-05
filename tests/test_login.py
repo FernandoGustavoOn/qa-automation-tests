@@ -1,3 +1,4 @@
+import tempfile
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -9,13 +10,16 @@ from selenium.webdriver.chrome.options import Options
 @pytest.fixture
 def driver():
     options = Options()
-    # Não use o --user-data-dir ou configure conforme necessário
+    # Criar um diretório temporário para o Chrome
+    user_data_dir = tempfile.mkdtemp()
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+    
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.get("https://www.saucedemo.com/")
     yield driver
     driver.quit()
 
 def test_login_sucesso(driver):
+    driver.get("https://www.saucedemo.com/")
     driver.find_element(By.ID, "user-name").send_keys("standard_user")
     driver.find_element(By.ID, "password").send_keys("secret_sauce")
     driver.find_element(By.ID, "password").send_keys(Keys.RETURN)
